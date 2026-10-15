@@ -1,0 +1,50 @@
+---
+title: "Email the receipt"
+api: "POST {BASE_URL}/api/v1/payments/{id}/receipt/email"
+description: "Emails the receipt of a successful payment to an address you provide. Limited to 20 per hour."
+---
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The payment id (UUID). The payment must have succeeded.
+</ParamField>
+
+## Body
+
+<ParamField body="email" type="string" required>
+  Recipient address. Max 254 characters.
+</ParamField>
+
+<RequestExample>
+```bash cURL
+curl -X POST "{BASE_URL}/api/v1/payments/6c1d9a3e-2f0b-4a7e-9d51-0b3a7c2e9f14/receipt/email" \
+  -H "x-api-key: $MIZANIYA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "email": "client@example.dz" }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json 201 Created
+{
+  "statusCode": 200,
+  "message": "Receipt emailed successfully.",
+  "data": { "sent": true, "language": "fr" }
+}
+```
+</ResponseExample>
+
+<Warning>
+Limited to **20 emails per hour**. Beyond that you get `429 RATE429_LIMIT_EXCEEDED`.
+</Warning>
+
+## Errors
+
+| HTTP | errorCode | Cause |
+|---|---|---|
+| 400 | `VALIDATION400_BAD_REQUEST` | Invalid email (max 254 chars). |
+| 404 | `PAYMENT_INSTANCE404_NOT_FOUND` | No payment with this id. |
+| 409 | `RECEIPT409_NOT_AVAILABLE` | Payment did not succeed. |
+| 429 | `RATE429_LIMIT_EXCEEDED` | More than 20 emails in one hour. |
+| 502 | `RECEIPT502_EMAIL_FAILED` | Mail server refused, retry later. |

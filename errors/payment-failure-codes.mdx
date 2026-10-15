@@ -1,0 +1,24 @@
+---
+title: "Payment failure codes"
+description: "Codes returned in error.code when a payment fails, with a suggested message for the payer."
+---
+
+When a payment fails, `error.code` tells you why. Show the payer the matching message.
+
+| `error.code` | Meaning | Message for the payer |
+|---|---|---|
+| `CARD400_DECLINED` | Bank declined the card. | Payment declined. Try another card. |
+| `CARD400_INSUFFICIENT_FUNDS` | Not enough funds. | Insufficient balance. |
+| `CARD400_EXPIRED` | Card expired. | Your card has expired. |
+| `CARD400_INVALID` | Invalid card details. | Check your card details. |
+| `OTP400_INVALID` | Wrong code. | Incorrect verification code. |
+| `OTP400_MAX_ATTEMPTS` | Too many wrong codes. | Too many incorrect codes. Start again. |
+| `PAYMENT_INSTANCE410_EXPIRED` | Window closed. | Your session expired. |
+| `SATIM202_UNKNOWN_STATE` | Outcome being confirmed. | Your payment is being confirmed. |
+| `SATIM503_UNAVAILABLE` | Card network unavailable. | Service unavailable. Try later. |
+
+<Note>
+Treat any unknown code on a failed payment as a generic failure.
+</Note>
+
+A failed payment is final. To retry, [register a new payment](/api-reference/register-payment).

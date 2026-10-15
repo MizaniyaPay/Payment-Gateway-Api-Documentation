@@ -1,0 +1,44 @@
+---
+title: "API errors"
+description: "HTTP errors and their errorCode. Branch on errorCode, never on message."
+---
+
+<Warning>
+Branch on `errorCode`, never on `message`. Include the `requestId` when you contact support.
+</Warning>
+
+| HTTP | errorCode | Meaning |
+|---|---|---|
+| 400 | `VALIDATION400_BAD_REQUEST` | Invalid body or parameter. |
+| 400 | `VALIDATION422_UNPROCESSABLE_ENTITY` | `metadata` too large. |
+| 400 | `PAYMENT_INSTANCE400_AMOUNT_OUT_OF_RANGE` | Amount outside allowed range. |
+| 400 | `PAYMENT_INSTANCE400_UNSUPPORTED_CURRENCY` | Currency not supported. |
+| 401 | `API_KEY401_INVALID` | Missing, malformed or unknown API key. |
+| 403 | `API_KEY403_NOT_ACTIVE` | Key pending, inactive or suspended. |
+| 403 | `API_KEY403_REVOKED` | Key permanently rejected. |
+| 403 | `MERCHANT403_INACTIVE` | Merchant account not active. |
+| 404 | `PAYMENT_INSTANCE404_NOT_FOUND` | Payment not found for this key. |
+| 404 | `VALIDATION404_NOT_FOUND` | Unknown route, check the `/api/v1` prefix. |
+| 409 | `PAYMENT_INSTANCE409_DUPLICATE_REFERENCE` | Reference already used. |
+| 409 | `RECEIPT409_NOT_AVAILABLE` | Payment did not succeed. |
+| 422 | `SETTLEMENT422_MERCHANT_WALLET_MISSING` | No wallet to receive funds. |
+| 429 | `RATE429_LIMIT_EXCEEDED` | Too many requests (120 per minute; receipt email 20 per hour). |
+| 500 | `SYS500_INTERNAL_ERROR` | Unexpected error, retry later. |
+| 500 | `RECEIPT500_GENERATION_FAILED` | The receipt could not be produced, retry later. |
+| 502 | `SATIM502_REGISTRATION_FAILED` | Card network could not open the payment, retry with a new reference. |
+| 502 | `RECEIPT502_EMAIL_FAILED` | Receipt email could not be sent. |
+| 503 | `SYS503_SERVICE_UNAVAILABLE` | Temporarily unavailable, retry later. |
+
+## Error body
+
+```json
+{
+  "statusCode": 409,
+  "message": "A payment with this reference already exists for this API key",
+  "errorCode": "PAYMENT_INSTANCE409_DUPLICATE_REFERENCE",
+  "timestamp": "2026-08-02T12:00:00.123Z",
+  "path": "/api/v1/payments",
+  "requestId": "0b7f2c1a-7d3e-4f5a-9c2b-1e8d6a4f0b93",
+  "details": { "reference": "COMMANDE-2024-8756" }
+}
+```

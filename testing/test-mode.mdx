@@ -1,0 +1,25 @@
+---
+title: "Test mode"
+description: "Integrate safely with a pk_test key. No card is charged and no money moves."
+---
+
+Use a `pk_test_…` key with the test base URL. No card is ever charged and no money moves (`settledAt` stays `null`). Statuses, webhooks, receipts and fees behave like live.
+
+<Steps>
+  <Step title="Use your test key and test base URL">
+    Send `pk_test_…` in the `x-api-key` header.
+  </Step>
+  <Step title="Pay with a test card">
+    Use one of the [test cards](/testing/test-cards-and-otp#test-cards). Any name, any future expiry (e.g. `12/30`) and any CVV (e.g. `123`).
+  </Step>
+  <Step title="Enter a test OTP">
+    `123456` succeeds. Any other code is wrong.
+  </Step>
+  <Step title="Check your webhook">
+    Confirm your endpoint verifies the signature and handles each event once.
+  </Step>
+</Steps>
+
+<Tip>
+Before going live, test every outcome: success, declined, insufficient funds, expired card, wrong OTP, and card network unavailable.
+</Tip>

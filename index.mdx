@@ -1,0 +1,54 @@
+---
+title: "Accept card payments with Mizaniya Pay"
+description: "Register a payment, send your customer to our hosted checkout, and get the result by webhook. Your server never touches card data."
+---
+
+Mizaniya Pay lets you accept **CIB** and **Edahabia** card payments in **DZD**. You call two endpoints; Mizaniya Pay handles the card, the OTP and the bank.
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Take your first test payment in five steps.
+  </Card>
+  <Card title="API reference" icon="code" href="/api-reference/register-payment">
+    Endpoints, fields, requests and responses.
+  </Card>
+  <Card title="Webhooks" icon="bell" href="/webhooks/overview">
+    Get notified when a payment changes status.
+  </Card>
+  <Card title="Test mode" icon="flask" href="/testing/test-mode">
+    Test cards and OTP codes. No money moves.
+  </Card>
+</CardGroup>
+
+## At a glance
+
+| | |
+|---|---|
+| Card schemes | CIB, Edahabia |
+| Currency | DZD |
+| Checkout languages | `ar`, `fr`, `en` |
+| Path prefix | `/api/v1` |
+| Payment window | 15 minutes |
+| Request amounts | Centimes (dinars × 100) |
+
+## How it works
+
+<Steps>
+  <Step title="Register">
+    Your server sends the amount in centimes and your order reference.
+  </Step>
+  <Step title="Redirect">
+    Send the payer to the `checkoutUrl` you get back.
+  </Step>
+  <Step title="Payer pays">
+    Card details and the OTP code from their bank, on our hosted page.
+  </Step>
+  <Step title="Get the result">
+    A signed webhook hits your server. You can also call `GET /payments/{id}`.
+  </Step>
+  <Step title="Fulfil">
+    Ship the order when the status is `success`.
+  </Step>
+</Steps>
+
+See [the payment flow](/concepts/payment-flow) for the full sequence.

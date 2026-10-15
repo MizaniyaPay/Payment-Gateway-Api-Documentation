@@ -1,0 +1,91 @@
+---
+title: "Verify the signature"
+description: "Check that a webhook really comes from Mizaniya Pay using HMAC-SHA256."
+---
+
+Every webhook is signed. Verify it before you trust it.
+
+```text
+X-Signature = hex( HMAC-SHA256( key     = webhook signing secret,
+                                message = raw body + X-Timestamp ) )
+```
+
+<Steps>
+  <Step title="Use the raw body">
+    Use the body exactly as received, before any JSON parsing.
+  </Step>
+  <Step title="Check the timestamp">
+    Reject timestamps more than **5 minutes** old.
+  </Step>
+  <Step title="Compare in constant time">
+    Compute the HMAC and compare it to `X-Signature` with a constant-time function.
+  </Step>
+  <Step title="Deduplicate">
+    Skip the event if its `deliveryId` was already processed.
+  </Step>
+</Steps>
+
+<CodeGroup>
+```javascript Node.js (Express)
+const crypto = require('crypto');
+
+app.post('/hooks/mizaniya',
+  express.raw({ type: 'application/json' }),
+  (req, res) => {
+    const ts  = req.get('X-Timestamp') ?? '';
+    const sig = req.get('X-Signature') ?? '';
+
+    if (Math.abs(Date.now() - Number(ts)) > 300000)
+      return res.status(400).send('stale');
+
+    const expected = crypto
+      .createHmac('sha256', process.env.MIZANIYA_WEBHOOK_SECRET)
+      .update(Buffer.concat([req.body, Buffer.from(ts)]))
+      .digest('hex');
+
+    if (expected.length !== sig.length ||
+        !crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(sig)))
+      return res.status(401).send('bad signature');
+
+    const event = JSON.parse(req.body.toString('utf8'));
+    // skip if event.deliveryId already processed
+    res.sendStatus(200);
+  });
+```
+
+```php PHP
+$body = file_get_contents('php://input');
+$ts   = $_SERVER['HTTP_X_TIMESTAMP'] ?? '';
+$sig  = $_SERVER['HTTP_X_SIGNATURE'] ?? '';
+
+if (abs(round(microtime(true) * 1000) - (int) $ts) > 300000) {
+    http_response_code(400); exit('stale');
+}
+
+$expected = hash_hmac('sha256', $body . $ts,
+                      getenv('MIZANIYA_WEBHOOK_SECRET'));
+
+if (!hash_equals($expected, $sig)) {
+    http_response_code(401); exit('bad signature');
+}
+
+$event = json_decode($body, true);
+// skip if $event['deliveryId'] already processed
+http_response_code(200);
+```
+</CodeGroup>
+
+## Test vector
+
+Use this to check your implementation:
+
+| Input | Value |
+|---|---|
+| Secret | `whsec_test` |
+| Body | `{"a":1}` |
+| Timestamp | `1700000000000` |
+| Expected `X-Signature` | `5ef81bd26861664f3a58ed6f4ce1de8e713c0fae393fc1a9eceee453eb8cb11a` |
+
+<Note>
+The signing secret is not your API key. Find it in the dashboard API settings.
+</Note>

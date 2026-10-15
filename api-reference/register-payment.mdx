@@ -1,0 +1,110 @@
+---
+title: "Register a payment"
+api: "POST {BASE_URL}/api/v1/payments"
+description: "Creates a payment and returns the hosted checkout link."
+---
+
+## Headers
+
+<ParamField header="x-api-key" type="string" required>
+  Your API key, `pk_test_…` or `pk_live_…`.
+</ParamField>
+
+<ParamField header="Content-Type" type="string" required>
+  `application/json`
+</ParamField>
+
+## Body
+
+<ParamField body="amount" type="integer" required>
+  Amount in centimes (dinars × 100), before the gateway fee. 15,000 DA → `1500000`. Default range `5000` – `100000000`.
+</ParamField>
+
+<ParamField body="currency" type="string" required>
+  `DZD`
+</ParamField>
+
+<ParamField body="reference" type="string" required>
+  Your order number. 1–255 characters. Unique per API key.
+</ParamField>
+
+<ParamField body="successUrl" type="string">
+  Where the payer is sent after a successful payment. Absolute http(s) URL, max 1000 characters.
+</ParamField>
+
+<ParamField body="failureUrl" type="string">
+  Where the payer is sent when the payment does not succeed. Absolute http(s) URL, max 1000 characters.
+</ParamField>
+
+<ParamField body="language" type="string" default="fr">
+  Checkout language: `ar`, `fr` or `en`.
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Any JSON (max 4 KB). Returned on GET and in webhooks.
+</ParamField>
+
+<RequestExample>
+```bash cURL
+curl -X POST "{BASE_URL}/api/v1/payments" \
+  -H "x-api-key: $MIZANIYA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 1500000,
+    "currency": "DZD",
+    "reference": "COMMANDE-2024-8756",
+    "language": "fr",
+    "successUrl": "https://shop.example.dz/orders/8756/paid",
+    "failureUrl": "https://shop.example.dz/orders/8756/retry",
+    "metadata": { "customerId": "C-1029" }
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json 201 Created
+{
+  "statusCode": 201,
+  "message": "Payment registered successfully.",
+  "data": {
+    "id": "6c1d9a3e-2f0b-4a7e-9d51-0b3a7c2e9f14",
+    "reference": "COMMANDE-2024-8756",
+    "amount": 1500000,
+    "fees": 150,
+    "total": 1515000,
+    "currency": "DZD",
+    "language": "fr",
+    "status": "created",
+    "expiresAt": "2026-08-02T12:15:00.000Z",
+    "checkoutUrl": "https://checkout.mizaniyapay.com/9f1c…?lang=fr"
+  }
+}
+```
+</ResponseExample>
+
+## Response fields
+
+<ResponseField name="data.id" type="string">Payment id (UUID). Store it, you need it for every later call.</ResponseField>
+<ResponseField name="data.reference" type="string">Your order reference.</ResponseField>
+<ResponseField name="data.amount" type="integer">Amount in centimes, before the fee.</ResponseField>
+<ResponseField name="data.fees" type="integer">Your configured gateway fee, in DZD.</ResponseField>
+<ResponseField name="data.total" type="integer">Centimes, fee included. This is what the card is charged.</ResponseField>
+<ResponseField name="data.status" type="string">Starts at `created`.</ResponseField>
+<ResponseField name="data.expiresAt" type="string">End of the 15-minute payment window (ISO-8601 UTC).</ResponseField>
+<ResponseField name="data.checkoutUrl" type="string">Hosted checkout link. Shown only once: redirect the payer straight away.</ResponseField>
+
+<Note>
+**Return URLs carry your reference.** When the payer comes back, we add `reference=<your reference>` to the URL you gave, keeping your own query parameters, for example `https://shop.example.dz/orders/8756/paid?reference=COMMANDE-2024-8756`. A URL that is not an absolute http(s) link is rejected with `400 VALIDATION400_BAD_REQUEST`.
+</Note>
+
+## Errors
+
+| HTTP | errorCode | Cause |
+|---|---|---|
+| 400 | `VALIDATION400_BAD_REQUEST` | Missing or malformed field, see `details.failures`. |
+| 400 | `PAYMENT_INSTANCE400_AMOUNT_OUT_OF_RANGE` | Amount outside your range. |
+| 400 | `PAYMENT_INSTANCE400_UNSUPPORTED_CURRENCY` | Currency not supported. |
+| 400 | `VALIDATION422_UNPROCESSABLE_ENTITY` | `metadata` too large. |
+| 409 | `PAYMENT_INSTANCE409_DUPLICATE_REFERENCE` | Reference already used. |
+| 422 | `SETTLEMENT422_MERCHANT_WALLET_MISSING` | No wallet to settle into, contact us. |
+| 502 | `SATIM502_REGISTRATION_FAILED` | Card network unavailable, retry with a new reference. |

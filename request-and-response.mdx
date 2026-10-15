@@ -1,0 +1,46 @@
+---
+title: "Request & response format"
+description: "Conventions for bodies, amounts, dates, tracing, versioning and error handling."
+---
+
+## Conventions
+
+| Rule | Detail |
+|---|---|
+| Body | JSON. Unknown fields are rejected. |
+| Amounts | `amount` and `total` in centimes (dinars × 100), whole numbers only, in requests, responses and webhooks. `fees` is your configured gateway fee, in DZD. |
+| Allowed range | Default 50 – 1,000,000 DZD (`5000` – `100000000` centimes). |
+| Dates | ISO-8601 UTC, e.g. `2026-08-02T12:04:31.000Z`. |
+| Tracing | Every response has an `x-request-id` header. Send your own and we echo it back. |
+| Versioning | Breaking changes ship as `/api/v2`; `/api/v1` never breaks. New optional fields and events may appear: ignore what you don't know. |
+| Rate limit | 120 requests per minute. |
+
+## Success envelope
+
+```json
+{
+  "statusCode": 200,
+  "message": "Payment result retrieved successfully.",
+  "data": { }
+}
+```
+
+## Error body
+
+```json
+{
+  "statusCode": 409,
+  "message": "A payment with this reference already exists for this API key",
+  "errorCode": "PAYMENT_INSTANCE409_DUPLICATE_REFERENCE",
+  "timestamp": "2026-08-02T12:00:00.123Z",
+  "path": "/api/v1/payments",
+  "requestId": "0b7f2c1a-7d3e-4f5a-9c2b-1e8d6a4f0b93",
+  "details": { "reference": "COMMANDE-2024-8756" }
+}
+```
+
+<Warning>
+Branch on `errorCode`, never on `message`. Include `requestId` when you contact support.
+</Warning>
+
+See the full list of [error codes](/errors/api-errors).

@@ -1,0 +1,104 @@
+---
+title: "Quickstart"
+description: "Register your first payment and receive the result in five steps."
+---
+
+## Before you start
+
+<Steps>
+  <Step title="Get your base URL">
+    Given at onboarding. It is written `{BASE_URL}` throughout these docs. Every path starts with `/api/v1`.
+  </Step>
+  <Step title="Create an API key">
+    In your merchant dashboard. Use `pk_test_…` for test and `pk_live_…` for live. A new key must be approved first.
+  </Step>
+  <Step title="Configure your webhook">
+    Set a webhook URL and copy the signing secret in the dashboard API settings. The signing secret is **not** your API key.
+  </Step>
+</Steps>
+
+## 1. Register a payment
+
+<CodeGroup>
+```bash cURL
+curl -X POST "{BASE_URL}/api/v1/payments" \
+  -H "x-api-key: $MIZANIYA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 1500000,
+    "currency": "DZD",
+    "reference": "COMMANDE-2024-8756",
+    "language": "fr",
+    "successUrl": "https://shop.example.dz/orders/8756/paid",
+    "failureUrl": "https://shop.example.dz/orders/8756/retry",
+    "metadata": { "customerId": "C-1029" }
+  }'
+```
+
+```javascript Node.js
+const res = await fetch(`${process.env.MIZANIYA_BASE_URL}/api/v1/payments`, {
+  method: 'POST',
+  headers: {
+    'x-api-key': process.env.MIZANIYA_API_KEY,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    amount: 1500000, // 15,000 DA in centimes
+    currency: 'DZD',
+    reference: 'COMMANDE-2024-8756',
+    language: 'fr',
+    successUrl: 'https://shop.example.dz/orders/8756/paid',
+    failureUrl: 'https://shop.example.dz/orders/8756/retry',
+    metadata: { customerId: 'C-1029' },
+  }),
+});
+const { data } = await res.json();
+```
+</CodeGroup>
+
+<Warning>
+`amount` is in **centimes**. To charge 1,500 DA send `150000`; for 1,499.50 DA send `149950`.
+</Warning>
+
+## 2. Store the id and redirect the payer
+
+The response contains the payment `id` and the `checkoutUrl`:
+
+```json
+{
+  "statusCode": 201,
+  "message": "Payment registered successfully.",
+  "data": {
+    "id": "6c1d9a3e-2f0b-4a7e-9d51-0b3a7c2e9f14",
+    "reference": "COMMANDE-2024-8756",
+    "amount": 1500000,
+    "fees": 150,
+    "total": 1515000,
+    "currency": "DZD",
+    "language": "fr",
+    "status": "created",
+    "expiresAt": "2026-08-02T12:15:00.000Z",
+    "checkoutUrl": "https://checkout.mizaniyapay.com/9f1c…?lang=fr"
+  }
+}
+```
+
+<Note>
+Store the `id`, you need it for every later call. The `checkoutUrl` is shown **only once**: redirect the payer straight away.
+</Note>
+
+## 3. The payer pays
+
+On our hosted page the payer enters their card details, then the OTP sent by SMS from their bank. In test mode, use the [test cards and OTP codes](/testing/test-cards-and-otp).
+
+## 4. Receive the webhook
+
+When the payment reaches a status you must act on, we `POST` to your webhook URL. [Verify the signature](/webhooks/verify-signature) and process the event once, using `deliveryId`.
+
+## 5. Fulfil the order
+
+Ship the order only when `payment.status` is `success`. You can double-check with [Get a payment](/api-reference/get-payment).
+
+<Tip>
+When the payer comes back to your `successUrl` or `failureUrl`, we append `reference=<your reference>` and keep your own query parameters. Do not treat the redirect as proof of payment: rely on the webhook or `GET /payments/{id}`.
+</Tip>

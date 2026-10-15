@@ -1,0 +1,68 @@
+---
+title: "Get a payment"
+api: "GET {BASE_URL}/api/v1/payments/{id}"
+description: "Returns the current status and, once final, the result to reconcile against."
+---
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The payment id (UUID) returned when you registered the payment.
+</ParamField>
+
+<RequestExample>
+```bash cURL
+curl "{BASE_URL}/api/v1/payments/6c1d9a3e-2f0b-4a7e-9d51-0b3a7c2e9f14" \
+  -H "x-api-key: $MIZANIYA_API_KEY"
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 OK
+{
+  "statusCode": 200,
+  "message": "Payment result retrieved successfully.",
+  "data": {
+    "id": "6c1d9a3e-2f0b-4a7e-9d51-0b3a7c2e9f14",
+    "reference": "COMMANDE-2024-8756",
+    "status": "success",
+    "amount": 1500000,
+    "fees": 150,
+    "total": 1515000,
+    "currency": "DZD",
+    "language": "fr",
+    "maskedPan": "**** **** **** 1234",
+    "createdAt": "2026-08-02T12:00:00.000Z",
+    "expiresAt": "2026-08-02T12:15:00.000Z",
+    "completedAt": "2026-08-02T12:04:31.000Z",
+    "error": null,
+    "metadata": { "customerId": "C-1029" }
+  }
+}
+```
+</ResponseExample>
+
+## Failed payment
+
+Only `data` differs: `status` is `failed` and `error` is filled in.
+
+```json
+"status": "failed",
+"error": {
+  "code": "CARD400_INSUFFICIENT_FUNDS",
+  "message": "The card has insufficient funds"
+}
+```
+
+See all [payment failure codes](/errors/payment-failure-codes).
+
+## Errors
+
+| HTTP | errorCode | Cause |
+|---|---|---|
+| 400 | `VALIDATION400_BAD_REQUEST` | `id` is not a UUID. |
+| 404 | `PAYMENT_INSTANCE404_NOT_FOUND` | No payment with this id for your key. |
+
+<Tip>
+Use this endpoint to confirm a result or to recover if a webhook was missed. Check [payment statuses](/concepts/payment-statuses) to know what to do for each.
+</Tip>
