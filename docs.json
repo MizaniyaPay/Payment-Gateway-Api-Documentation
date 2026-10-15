@@ -3,13 +3,13 @@
     "name": "Mizaniya Pay",
     "description": "Accept CIB and Edahabia card payments in DZD with the Mizaniya Pay Payment Gateway API.",
     "colors": {
-      "primary": "#16A34A",
+      "primary": "#2f769d",
       "light": "#07C983",
       "dark": "#15803D"
     },
     "logo": {
-      "light": "/logo/light.svg",
-      "dark": "/logo/dark.svg"
+      "light": "/logo/logomizaniya.png",
+      "dark": "/logo/logomizaniya.png"
     },
     "favicon": "/favicon.svg",
     "navbar": {
