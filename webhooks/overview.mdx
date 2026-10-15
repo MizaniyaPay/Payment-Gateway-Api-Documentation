@@ -1,0 +1,81 @@
+---
+title: "Webhooks"
+description: "Get notified when a payment reaches a status you must act on. No polling needed."
+---
+
+When a payment reaches a status you must act on, we `POST` to your webhook URL with `?reference=…` appended. Set the URL and the signing secret in the dashboard API settings.
+
+## What we send
+
+```http
+POST https://shop.example.dz/hooks/mizaniya?reference=COMMANDE-2024-8756
+Content-Type: application/json
+X-Signature: 5ef81bd2…b11a
+X-Timestamp: 1754136271000
+X-Mizaniya-Event: payment.succeeded
+X-Mizaniya-Delivery-Id: a8f3e5d2-41c7-4b0e-9a6d-7e2c1b9f0d34
+X-Mizaniya-Attempt: 1
+X-Mizaniya-Reference: COMMANDE-2024-8756
+```
+
+## What you answer
+
+```http
+HTTP/1.1 200 OK
+```
+
+Answer any `2xx` within **10 seconds**.
+
+## Retries
+
+| Your response | Retried? |
+|---|---|
+| Timeout, `408`, `429`, `5xx` | Yes: about 2, 4, 8, 16 and 32 minutes later (6 attempts in total). |
+| Any other `4xx` | No. |
+
+## Body
+
+```json
+{
+  "channel": "payment-gateway",
+  "event": "payment.succeeded",
+  "deliveryId": "a8f3e5d2-41c7-4b0e-9a6d-7e2c1b9f0d34",
+  "occurredAt": "2026-08-02T12:04:31.000Z",
+  "payment": {
+    "id": "6c1d9a3e-2f0b-4a7e-9d51-0b3a7c2e9f14",
+    "reference": "COMMANDE-2024-8756",
+    "status": "success",
+    "amount": 1500000,
+    "fees": 150,
+    "total": 1515000,
+    "currency": "DZD",
+    "language": "fr",
+    "maskedPan": "**** **** **** 1234",
+    "attemptCount": 1,
+    "createdAt": "2026-08-02T12:00:00.000Z",
+    "expiresAt": "2026-08-02T12:15:00.000Z",
+    "completedAt": "2026-08-02T12:04:31.000Z",
+    "paidAt": "2026-08-02T12:04:31.000Z",
+    "settledAt": "2026-08-02T12:04:32.000Z",
+    "error": null,
+    "metadata": { "customerId": "C-1029" }
+  }
+}
+```
+
+## Best practices
+
+<AccordionGroup>
+  <Accordion title="Process each notification once">
+    The same notification may arrive twice. Store the `deliveryId` and skip any you have already processed.
+  </Accordion>
+  <Accordion title="Trust payment.status, not arrival order">
+    Events may arrive out of order. Always trust `payment.status` in the body.
+  </Accordion>
+  <Accordion title="Verify every request">
+    Check the [signature](/webhooks/verify-signature) and reject stale timestamps before doing anything else.
+  </Accordion>
+  <Accordion title="Ignore what you don't know">
+    New optional fields and events may appear. Ignore them safely.
+  </Accordion>
+</AccordionGroup>

@@ -1,0 +1,23 @@
+---
+title: "Webhook events"
+description: "The events we send and what to do for each."
+---
+
+| Event | When | Final |
+|---|---|---|
+| `payment.succeeded` | Paid: fulfil the order. | Yes |
+| `payment.failed` | Did not go through. | Yes |
+| `payment.expired` | Payment window closed. | Yes |
+| `payment.canceled` | Payer canceled. | Yes |
+| `payment.abandoned` | Payer left the checkout. | Yes |
+| `payment.processing` | Being confirmed with the bank: hold the order. | No |
+
+<Warning>
+Only `payment.succeeded` means you have been paid. On `payment.processing`, hold the order: the card may already be charged, and it always ends in `success` or `failed`.
+</Warning>
+
+<Info>
+A card declined with attempts left sends **no** webhook: the payment returns to `created`. After the 3rd failed card, it becomes `failed` and one `payment.failed` is sent.
+</Info>
+
+The event name is in the `event` body field and in the `X-Mizaniya-Event` header. See the [body format](/webhooks/overview#body).

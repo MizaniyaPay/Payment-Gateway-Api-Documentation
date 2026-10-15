@@ -1,0 +1,42 @@
+---
+title: "Amounts and fees"
+description: "All amounts are in centimes. Understand amount, fees and total."
+---
+
+All amounts are in **centimes**. Multiply the dinar amount by 100 and send a whole number.
+
+| You want to charge | Send |
+|---|---|
+| 1,500 DA | `"amount": 150000` |
+| 1,499.50 DA | `"amount": 149950` |
+| 15,000 DA | `"amount": 1500000` |
+
+## amount, fees and total
+
+| Field | Unit | Meaning |
+|---|---|---|
+| `amount` | centimes | Amount before the gateway fee. What you send. |
+| `fees` | **DZD** | Your configured gateway fee. |
+| `total` | centimes | Fee included. This is what the card is charged. |
+
+Example from a real response:
+
+```json
+{
+  "amount": 1500000,
+  "fees": 150,
+  "total": 1515000
+}
+```
+
+Here the payment is 15,000 DA, the fee is 150 DZD, and the card is charged 15,150 DA (`1515000` centimes).
+
+<Warning>
+`fees` is expressed in DZD while `amount` and `total` are in centimes. Convert before you compare them.
+</Warning>
+
+## Allowed range
+
+The default range is **50 – 1,000,000 DZD**, that is `5000` – `100000000` centimes. A request outside your range fails with `400 PAYMENT_INSTANCE400_AMOUNT_OUT_OF_RANGE`.
+
+Responses and webhooks return `amount` and `total` in the same unit as requests.
