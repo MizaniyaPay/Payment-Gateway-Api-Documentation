@@ -1,6 +1,6 @@
 ---
 title: "Email the receipt"
-api: "POST {BASE_URL}/api/v1/payments/{id}/receipt/email"
+api: "POST /api/v1/payments/{id}/receipt/email"
 description: "Emails the receipt of a successful payment to an address you provide. Limited to 20 per hour."
 ---
 
@@ -18,7 +18,7 @@ description: "Emails the receipt of a successful payment to an address you provi
 
 <RequestExample>
 ```bash cURL
-curl -X POST "{BASE_URL}/api/v1/payments/6c1d9a3e-2f0b-4a7e-9d51-0b3a7c2e9f14/receipt/email" \
+curl -X POST "https://pg-api.mizaniyapay.dz/api/v1/payments/6c1d9a3e-2f0b-4a7e-9d51-0b3a7c2e9f14/receipt/email" \
   -H "x-api-key: $MIZANIYA_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{ "email": "client@example.dz" }'
