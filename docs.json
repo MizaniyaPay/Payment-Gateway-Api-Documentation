@@ -12,6 +12,11 @@
       "dark": "/logo/logomizaniya.png"
     },
     "favicon": "/favicon.svg",
+    "api": {
+      "mdx": {
+        "server": "https://pg-api.mizaniyapay.dz"
+      }
+    },
     "navbar": {
       "primary": {
         "type": "button",

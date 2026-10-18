@@ -1,6 +1,6 @@
 ---
 title: "Get a payment"
-api: "GET {BASE_URL}/api/v1/payments/{id}"
+api: "GET /api/v1/payments/{id}"
 description: "Returns the current status and, once final, the result to reconcile against."
 ---
 
@@ -12,7 +12,7 @@ description: "Returns the current status and, once final, the result to reconcil
 
 <RequestExample>
 ```bash cURL
-curl "{BASE_URL}/api/v1/payments/6c1d9a3e-2f0b-4a7e-9d51-0b3a7c2e9f14" \
+curl "https://pg-api.mizaniyapay.dz/api/v1/payments/6c1d9a3e-2f0b-4a7e-9d51-0b3a7c2e9f14" \
   -H "x-api-key: $MIZANIYA_API_KEY"
 ```
 </RequestExample>

@@ -1,6 +1,6 @@
 ---
 title: "Register a payment"
-api: "POST {BASE_URL}/api/v1/payments"
+api: "POST /api/v1/payments"
 description: "Creates a payment and returns the hosted checkout link."
 ---
 
@@ -8,10 +8,6 @@ description: "Creates a payment and returns the hosted checkout link."
 
 <ParamField header="x-api-key" type="string" required>
   Your API key, `pk_test_…` or `pk_live_…`.
-</ParamField>
-
-<ParamField header="Content-Type" type="string" required>
-  `application/json`
 </ParamField>
 
 ## Body
@@ -46,7 +42,7 @@ description: "Creates a payment and returns the hosted checkout link."
 
 <RequestExample>
 ```bash cURL
-curl -X POST "{BASE_URL}/api/v1/payments" \
+curl -X POST "https://pg-api.mizaniyapay.dz/api/v1/payments" \
   -H "x-api-key: $MIZANIYA_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{

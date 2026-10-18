@@ -6,8 +6,8 @@ description: "Register your first payment and receive the result in five steps."
 ## Before you start
 
 <Steps>
-  <Step title="Get your base URL">
-    Given at onboarding. It is written `{BASE_URL}` throughout these docs. Every path starts with `/api/v1`.
+  <Step title="Base URL">
+    `https://pg-api.mizaniyapay.dz`. Every path starts with `/api/v1`.
   </Step>
   <Step title="Create an API key">
     In your merchant dashboard. Use `pk_test_…` for test and `pk_live_…` for live. A new key must be approved first.
@@ -21,7 +21,7 @@ description: "Register your first payment and receive the result in five steps."
 
 <CodeGroup>
 ```bash cURL
-curl -X POST "{BASE_URL}/api/v1/payments" \
+curl -X POST "https://pg-api.mizaniyapay.dz/api/v1/payments" \
   -H "x-api-key: $MIZANIYA_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -36,7 +36,7 @@ curl -X POST "{BASE_URL}/api/v1/payments" \
 ```
 
 ```javascript Node.js
-const res = await fetch(`${process.env.MIZANIYA_BASE_URL}/api/v1/payments`, {
+const res = await fetch('https://pg-api.mizaniyapay.dz/api/v1/payments', {
   method: 'POST',
   headers: {
     'x-api-key': process.env.MIZANIYA_API_KEY,
